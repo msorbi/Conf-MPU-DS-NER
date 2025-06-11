@@ -1,3 +1,9 @@
+# CuPUL for Historical NER
+
+Fork of [kangISU/Conf-MPU-DS-NER](https://github.com/kangISU/Conf-MPU-DS-NER) with added datasets. Work in progress.
+
+# Forked Readme
+
 ## Code for "Distantly Supervised Named Entity Recognition via Confidence-Based Multi-Class Positive and Unlabeled Learning" published at ACL 2022
 The code is developed based on https://github.com/v-mipeng/LexiconNER.
 

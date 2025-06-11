@@ -14,7 +14,7 @@ class PU(AbstractPU):
         self.caseModel = CaseNet(self.dp.caseEmbeddings, self.dp.case2Idx)
         self.featureModel = FeatureNet()
 
-        if torch.cuda.is_available:
+        if torch.cuda.is_available():
             self.charModel.cuda()
             self.wordModel.cuda()
             self.caseModel.cuda()

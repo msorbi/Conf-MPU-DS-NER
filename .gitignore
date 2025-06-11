@@ -1,0 +1,10 @@
+**/__pycache__/
+data/glove*
+
+predicted_data/*
+!predicted_data/
+!predicted_data/.gitkeep
+
+saved_model/*
+!saved_model/
+!saved_model/.gitkeep

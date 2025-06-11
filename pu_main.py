@@ -77,6 +77,7 @@ def main():
     parser.add_argument('--model_name', type=str, help='saved model name')
     parser.add_argument('--early_stop', type=bool, default=False, help='use validation set to early stop')
     parser.add_argument('--no_lexicon', type=bool, default=False, help='without lexicon feature')
+    parser.add_argument('--model_path', type=str, default='saved_model/bPN_CoNLL2003_Fully_Entity_NA_lr_0.0001_cn_2_loss_SMAE_m_15.0_ws_NA_eta_0.5_percent_1.0_trail_1', help='model path for add_probs')
 
     args = parser.parse_args()
 
@@ -141,7 +142,7 @@ def main():
         args.pert,
         args.trail)
 
-    if torch.cuda.is_available:
+    if torch.cuda.is_available():
         model.cuda()
         torch.cuda.manual_seed(1013)
 
@@ -167,7 +168,7 @@ def main():
     # create dataset files with probabilities for bPUbN or confidence-based mPU
     elif args.add_probs:
         # manually pass the model path
-        model_path = 'saved_model/bPN_CoNLL2003_Fully_Entity_NA_lr_0.0001_cn_2_loss_SMAE_m_15.0_ws_NA_eta_0.5_percent_1.0_trail_1'
+        model_path = args.model_path
         # model_path = 'saved_model/bPN_BC5CDR_Fully_Entity_NA_lr_0.0001_cn_2_loss_SMAE_m_10.0_ws_NA_eta_0.5_percent_1.0_trail_1'
         testSet = dp.load_testset(args.dataset, "train.ALL.txt", args.no_lexicon)
         trainer.add_probs(dp, testSet, model_path, args.dataset, args.flag, args.added_suffix)
