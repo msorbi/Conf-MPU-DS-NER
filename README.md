@@ -1,6 +1,25 @@
-# CuPUL for Historical NER
+# Conf-MPU for Historical NER
 
 Fork of [kangISU/Conf-MPU-DS-NER](https://github.com/kangISU/Conf-MPU-DS-NER) with added datasets. Work in progress.
+
+## Historical NER Instructions
+
+### Datasets preparation
+- `source scripts/prepare_hdsner.sh`
+  - clones the datasets submodule
+  - creates the datasets conda environment
+  - downloads and pre-processes the datasets, with sequence length 64
+
+### Environment setup
+This is the setup of the model environment, which differs from the one in the submodule. \
+`conda env create -n ConfMPU -f environment.yml` \
+`conda activate ConfMPU`
+
+### Format data and run model
+`bash scripts/run_hdsner.sh supervised` # supervised setting \
+`bash scripts/run_hdsner.sh distant` # distantly-supervised setting \
+<!-- Results will be in data/hdsner-(supervised|distant)-DATASET. \ -->
+**NOTE**: this will overwrite previous results.
 
 # Forked Readme
 

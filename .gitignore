@@ -1,5 +1,7 @@
 **/__pycache__/
+
 data/glove*
+data/hdsner*
 
 predicted_data/*
 !predicted_data/
