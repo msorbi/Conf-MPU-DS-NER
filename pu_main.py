@@ -8,6 +8,7 @@ from utils.model_mpu import MPU
 from utils.model_conf_mpu import ConfMPU
 from utils.model_mpn import MPN
 from utils.base_classes import Trainer
+import json
 
 
 def bnPU(args):
@@ -77,9 +78,10 @@ def main():
     parser.add_argument('--model_name', type=str, help='saved model name')
     parser.add_argument('--early_stop', type=bool, default=False, help='use validation set to early stop')
     parser.add_argument('--no_lexicon', type=bool, default=False, help='without lexicon feature')
-    parser.add_argument('--model_path', type=str, default='saved_model/bPN_CoNLL2003_Fully_Entity_NA_lr_0.0001_cn_2_loss_SMAE_m_15.0_ws_NA_eta_0.5_percent_1.0_trail_1', help='model path for add_probs')
+    parser.add_argument('--model_path', type=str, default=None, help='model path for add_probs, example: saved_model/bPN_CoNLL2003_Fully_Entity_NA_lr_0.0001_cn_2_loss_SMAE_m_15.0_ws_NA_eta_0.5_percent_1.0_trail_1')
 
     args = parser.parse_args()
+    assert not (args.add_probs and (args.model_path is None or not os.path.exists(args.model_path))) 
 
     # set specific arguments for different datasets
     if 'CoNLL2003' in args.dataset:
@@ -98,6 +100,13 @@ def main():
             args.priors = [0.060108318524160105, 0.060082931370060086]  # true
         else:
             args.priors = [0.0503131404897, 0.0503834263676]  # estimated
+    elif args.dataset.lower().startswith("hdsner-"):
+        with open(os.path.join("data", args.dataset, "priors.json")) as fp:
+            priors_tmp = json.load(fp)
+        args.tag2Idx = {x:i for i,x in enumerate(["O"]+list(priors_tmp.keys()))}
+        args.idx2tag = {v:k for k,v in args.tag2Idx.items()}
+        args.priors = list(priors_tmp.values()) # preserve order
+        del priors_tmp
     else:
         raise Exception('Please check the dataset name!')
 
@@ -154,14 +163,20 @@ def main():
         testSet = dp.load_testset(args.dataset, "test.txt", args.no_lexicon)
         # manually pass the model path
         trainer.saved_models = [
-            'saved_model/bnPU_CoNLL2003_KB_PER_NA_lr_0.0001_cn_2_loss_SMAE_m_32.0_ws_NA_eta_NA_percent_1.0_trail_1',
-            'saved_model/bnPU_CoNLL2003_KB_LOC_NA_lr_0.0001_cn_2_loss_SMAE_m_25.0_ws_NA_eta_NA_percent_1.0_trail_1',
-            'saved_model/bnPU_CoNLL2003_KB_ORG_NA_lr_0.0001_cn_2_loss_SMAE_m_28.0_ws_NA_eta_NA_percent_1.0_trail_1',
-            'saved_model/bnPU_CoNLL2003_KB_MISC_NA_lr_0.0001_cn_2_loss_SMAE_m_62.0_ws_NA_eta_NA_percent_1.0_trail_1'
-
-            # 'saved_model/bnPU_BC5CDR_Dict_1.0_Chemical_NA_lr_0.0001_cn_2_loss_SMAE_m_28.0_ws_NA_eta_NA_percent_1.0_trail_1',
-            # 'saved_model/bnPU_BC5CDR_Dict_1.0_Disease_NA_lr_0.0001_cn_2_loss_SMAE_m_28.0_ws_NA_eta_NA_percent_1.0_trail_1'
-
+            "saved_model/{}_{}_{}_{}_lr_{}_cn_{}_loss_{}_m_{}_ws_{}_eta_{}_percent_{}_trail_{}".format(
+                args.type,
+                args.dataset,
+                k,
+                args.suffix if args.suffix != '' else "NA",
+                args.lr,
+                args.cn,
+                args.loss,
+                args.m,
+                "NA", # args.weights if 'mPU' in args.type else "NA",
+                args.eta if args.eta != 0 else "NA",
+                args.pert,
+                args.trail
+            ) for k in list(args.tag2Idx.keys())[1:] # discard 'O'
         ]
         trainer.performance_on_dataset(testSet, dp, args, "test", inference=True)
 
@@ -169,7 +184,6 @@ def main():
     elif args.add_probs:
         # manually pass the model path
         model_path = args.model_path
-        # model_path = 'saved_model/bPN_BC5CDR_Fully_Entity_NA_lr_0.0001_cn_2_loss_SMAE_m_10.0_ws_NA_eta_0.5_percent_1.0_trail_1'
         testSet = dp.load_testset(args.dataset, "train.ALL.txt", args.no_lexicon)
         trainer.add_probs(dp, testSet, model_path, args.dataset, args.flag, args.added_suffix)
 
@@ -188,12 +202,16 @@ def main():
         if not os.path.exists(pred_path):
             os.mkdir(pred_path)
 
-        pred_file = pred_path + '/pred_' + args.model_name + '.txt'
-        try:
-            overall = trainer.performance_on_testset(testSet, dp, args, "test", model_path, pred_file)
-            print("\nOVERALL ON TEST: {}".format(overall))
-        except FileNotFoundError:
-            print('FileNotFound')
+        for split_desc, predSet in [
+            ("valid", validSet),
+            ("test", testSet)
+        ]:
+            pred_file = pred_path + '/pred_' + f'{split_desc}_' + args.model_name + '.txt'
+            try:
+                overall = trainer.performance_on_testset(predSet, dp, args, split_desc, model_path, pred_file)
+                print("\nOVERALL ON TEST: {}".format(overall))
+            except FileNotFoundError:
+                print('FileNotFound')
 
         print("\nArgs --> ", args.model_name)
         print("\n============DONE============\n\n\n")

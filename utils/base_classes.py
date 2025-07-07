@@ -24,7 +24,7 @@ class AbstractDataProcess(object):
             if char.isdigit():
                 numDigits += 1
 
-        digitFraction = numDigits / float(len(word))
+        digitFraction = numDigits / float(len(word)) if len(word)!=0 else 0.0
 
         if word.isdigit():
             casing = 'numeric'
