@@ -18,8 +18,14 @@ This is the setup of the model environment, which differs from the one in the su
 ### Format data and run model
 `bash scripts/run_hdsner.sh supervised` # supervised setting \
 `bash scripts/run_hdsner.sh distant` # distantly-supervised setting \
-<!-- Results will be in data/hdsner-(supervised|distant)-DATASET. \ -->
-**NOTE**: this will overwrite previous results.
+Results will be in `predicted_data/hdsner-DATASET_(Fully|Dict_0.1)`. \
+**NOTE**: this will overwrite previous results of the same supervision method.
+
+### Evaluate results
+- `source scripts/eval_hdsner.sh`
+  - activates the datasets environment
+  - evaluates results, writing to `data/hdsner_report_(valid|test).json`
+    - it contains both supervised and distant results, if previously run, in the same file
 
 # Forked Readme
 

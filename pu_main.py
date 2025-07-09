@@ -106,6 +106,7 @@ def main():
         args.tag2Idx = {x:i for i,x in enumerate(["O"]+list(priors_tmp.keys()))}
         args.idx2tag = {v:k for k,v in args.tag2Idx.items()}
         args.priors = list(priors_tmp.values()) # preserve order
+        args.cn = len(args.tag2Idx)
         del priors_tmp
     else:
         raise Exception('Please check the dataset name!')

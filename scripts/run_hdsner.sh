@@ -36,18 +36,14 @@ python3 src/format_hdsner_datasets.py \
 for dataset in ${output_dir}/${dataset_prefix}*${dataset_suffix}
 do
     dataset_name="`basename ${dataset}`"
-    echo "${dataset_name}"
     time \
     (
         echo "Step 1"
-        python pu_main.py --type bnPU --dataset "${dataset_name}" --flag Entity --m 15 --determine_entity True --epochs 2 # TODO: --epochs 100
-        echo "$?"
+        python pu_main.py --type bnPU --dataset "${dataset_name}" --flag Entity --m 15 --determine_entity True --epochs 100
         echo "Step 2"
-        python pu_main.py --type bnPU --dataset "${dataset_name}" --add_probs True --flag ALL --added_suffix entity_prob --model_path "saved_model/bnPU_${dataset_name}_Entity_NA_lr_0.0001_cn_2_loss_SMAE_m_15.0_ws_NA_eta_NA_percent_1.0_trail_1" --epochs 2 # TODO: remove --epochs
-        echo "$?"
+        python pu_main.py --type bnPU --dataset "${dataset_name}" --add_probs True --flag ALL --added_suffix entity_prob --model_path "saved_model/bnPU_${dataset_name}_Entity_NA_lr_0.0001_cn_2_loss_SMAE_m_15.0_ws_NA_eta_NA_percent_1.0_trail_1"
         echo "Step 3"
-        python pu_main.py --type conf_mPU --dataset "${dataset_name}" --flag ALL --suffix entity_prob --m 15 --eta 0.5 --lr 0.0005 --loss MAE --epochs 2 # TODO: --epochs 100
-        echo "$?"
+        python pu_main.py --type conf_mPU --dataset "${dataset_name}" --flag ALL --suffix entity_prob --m 15 --eta 0.5 --lr 0.0005 --loss MAE --epochs 100
     ) \
     > "${dataset}/stdout.txt" 2> "${dataset}/stderr.txt"
 done
