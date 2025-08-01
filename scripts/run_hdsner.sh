@@ -19,7 +19,7 @@ do
         continue
     fi
     source="hdsner-utils/data/${setting}/ner_medieval_multilingual/FR/"
-    if [ "${setting}" == "supervised" ]
+    if [ "${setting}" = "supervised" ]
     then
         output_suffix="_Fully"
     else
@@ -35,7 +35,7 @@ do
 done
 
 # execute on all datasets
-for dataset in ${output_dir}/${dataset_prefix}*${dataset_suffix}
+for dataset in ${output_dir}/${dataset_prefix}*
 do
     dataset_name="`basename ${dataset}`"
     time \
